@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2025年度綜合所得稅試算（114年）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Helvetica Neue', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+    background: #f5f4f0;
+    color: #1a1a1a;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+  .container { max-width: 680px; margin: 0 auto; }
+  h1 {
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 1.5rem;
+  }
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 12px;
+    border: 0.5px solid rgba(0,0,0,0.08);
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 500;
+    color: #999;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .slider-label { font-size: 13px; color: #555; min-width: 140px; }
+  .slider-val { font-size: 13px; font-weight: 500; min-width: 65px; text-align: right; }
+  input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    cursor: pointer;
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    cursor: pointer;
+    border: none;
+  }
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .metric {
+    background: #f5f4f0;
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .metric-label { font-size: 11px; color: #999; margin-bottom: 4px; }
+  .metric-val { font-size: 19px; font-weight: 500; }
+  .metric-val.danger { color: #c0392b; }
+  .step-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 7px 0;
+    border-bottom: 0.5px solid rgba(0,0,0,0.06);
+  }
+  .step-row:last-child { border-bottom: none; }
+  .step-label { font-size: 13px; color: #666; }
+  .step-val { font-size: 13px; font-weight: 500; }
+  .step-val.neg { color: #c0392b; }
+  .divider { height: 1px; background: rgba(0,0,0,0.07); margin: 8px 0; }
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 8px 0 2px;
+  }
+  .total-row .step-label { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+  .total-row .step-val { font-size: 17px; font-weight: 500; }
+  .bracket-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    border-radius: 8px;
+    margin-bottom: 3px;
+    font-size: 13px;
+  }
+  .bracket-row.active {
+    background: #eef4ff;
+    color: #1a56db;
+    font-weight: 500;
+  }
+  .bracket-row .br-range { color: inherit; }
+  .bracket-row .br-rate { color: inherit; }
+  .bracket-note { font-size: 12px; color: #999; margin-top: 8px; line-height: 1.6; }
+  .rate-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: 6px;
+    background: #eef4ff;
+    color: #1a56db;
+    vertical-align: middle;
+  }
+  .final-card {
+    background: #1a1a1a;
+    color: #fff;
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 12px;
+  }
+  .final-card .section-title { color: #888; }
+  .final-card .step-row { border-bottom-color: rgba(255,255,255,0.08); }
+  .final-card .step-label { color: #aaa; }
+  .final-card .step-val { color: #fff; }
+  .final-card .step-val.neg { color: #ff8080; }
+  .final-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 12px;
+    margin-top: 4px;
+    border-top: 0.5px solid rgba(255,255,255,0.15);
+  }
+  .final-total .label { font-size: 15px; font-weight: 500; color: #fff; }
+  .final-total .val { font-size: 28px; font-weight: 500; color: #ff6b6b; }
+  footer { text-align: center; font-size: 11px; color: #bbb; margin-top: 1.5rem; padding-bottom: 2rem; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>綜合所得稅試算</h1>
+  <p class="subtitle">2025 年（114 年度）· 今年五月申報用</p>
+
+  <div class="card">
+    <p class="section-title">收入設定</p>
+    <div class="slider-row">
+      <span class="slider-label">薪資年收入</span>
+      <input type="range" id="salary" min="50" max="200" step="1" value="100">
+      <span class="slider-val" id="salary-out">100 萬</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">股票張數（可調）</span>
+      <input type="range" id="stocks" min="0" max="15" step="1" value="5">
+      <span class="slider-val" id="stocks-out">5 張</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">幼兒學前人數</span>
+      <input type="range" id="kids" min="0" max="2" step="1" value="0">
+      <span class="slider-val" id="kids-out">0 人</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">70歲以上撫養人數</span>
+      <input type="range" id="elderly" min="0" max="5" step="1" value="0">
+      <span class="slider-val" id="elderly-out">0 人</span>
+    </div>
+    <div style="height:4px; background: rgba(0,0,0,0.05); border-radius:2px; margin: 4px 0 12px;"></div>
+    <div class="slider-row">
+      <span class="slider-label">自訂扣除額</span>
+      <input type="range" id="custom-ded" min="0" max="100" step="1" value="0">
+      <span class="slider-val" id="custom-ded-out">0 萬</span>
+    </div>
+  </div>
+
+  <div class="metric-grid">
+    <div class="metric">
+      <div class="metric-label">總所得</div>
+      <div class="metric-val" id="m-total">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">所得淨額</div>
+      <div class="metric-val" id="m-net">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">應繳稅額</div>
+      <div class="metric-val danger" id="m-tax">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="section-title">計算步驟明細</p>
+    <div class="step-row">
+      <span class="step-label">① 薪資收入</span>
+      <span class="step-val" id="s-salary">—</span>
+    </div>
+    <div class="step-row">
+      <span class="step-label">② 股票收入（固定 1 張 × 25.5 萬）</span>
+      <span class="step-val">+ 25.5 萬</span>
+    </div>
+    <div class="step-row">
+      <span class="step-label" id="s-stock-label">③ 股票收入（可調張數）</span>
+      <span class="step-val" id="s-stocks">—</span>
+    </div>
+    <div class="divider"></div>
+    <div class="total-row">
+      <span class="step-label">＝ 總所得</span>
+      <span class="step-val" id="s-gross">—</span>
+    </div>
+
+    <div style="height:14px;"></div>
+
+    <div class="step-row">
+      <span class="step-label">④ 免稅額（本人）</span>
+      <span class="step-val neg">− 9.7 萬</span>
+    </div>
+    <div class="step-row">
+      <span class="step-label">⑤ 標準扣除額（單身）</span>
+      <span class="step-val neg">− 13.1 萬</span>
+    </div>
+    <div class="step-row">
+      <span class="step-label">⑥ 薪資特別扣除額</span>
+      <span class="step-val neg" id="s-salary-ded">—</span>
+    </div>
+    <div class="step-row">
+      <span class="step-label" id="s-kid-label">⑦ 幼兒學前扣除額</span>
+      <span class="step-val neg" id="s-kids-ded">—</span>
+    </div>
+    <div class="step-row">
+      <span class="step-label" id="s-elderly-label">⑧ 70歲以上撫養免稅額</span>
+      <span class="step-val neg" id="s-elderly-ded">—</span>
+    </div>
+    <div class="step-row">
+      <span class="step-label">⑨ 自訂扣除額</span>
+      <span class="step-val neg" id="s-custom-ded">—</span>
+    </div>
+    <div class="divider"></div>
+    <div class="total-row">
+      <span class="step-label">＝ 綜合所得淨額</span>
+      <span class="step-val" id="s-net">—</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="section-title">累進稅率級距</p>
+    <div id="bracket-detail"></div>
+    <p class="bracket-note" id="bracket-note"></p>
+  </div>
+
+  <div class="final-card">
+    <p class="section-title">最終結果</p>
+    <div class="step-row">
+      <span class="step-label">⑩ 累進稅額</span>
+      <span class="step-val" id="r-bracket">—</span>
+    </div>
+    <div class="step-row">
+      <span class="step-label">⑪ 減：累進差額</span>
+      <span class="step-val neg" id="r-diff">—</span>
+    </div>
+    <div class="final-total">
+      <span class="label">應繳稅額 <span id="rate-badge" class="rate-badge" style="background:#333;color:#80b0ff;">5%</span></span>
+      <span class="val" id="r-tax">—</span>
+    </div>
+  </div>
+
+  <footer>數據僅供試算參考，實際申報請以國稅局為準</footer>
+</div>
+
+<script>
+const brackets = [
+  { limit: 59,       rate: 0.05, diff: 0 },
+  { limit: 132,      rate: 0.12, diff: 4.13 },
+  { limit: 222,      rate: 0.20, diff: 14.69 },
+  { limit: 414,      rate: 0.30, diff: 36.89 },
+  { limit: 623,      rate: 0.40, diff: 78.29 },
+  { limit: Infinity, rate: 0.45, diff: 109.44 }
+];
+
+function calc() {
+  const salary    = parseFloat(document.getElementById('salary').value);
+  const stockAdj  = parseFloat(document.getElementById('stocks').value);
+  const kids      = parseFloat(document.getElementById('kids').value);
+  const elderly   = parseFloat(document.getElementById('elderly').value);
+  const customDed = parseFloat(document.getElementById('custom-ded').value);
+
+  const stockFixed   = 25.5;
+  const stockAdjAmt  = stockAdj * 26.9;
+  const gross        = salary + stockFixed + stockAdjAmt;
+
+  const dedSalary  = Math.min(salary, 21.8);
+  const dedKids    = kids * 15.0;
+  const dedElderly = elderly * 14.55;
+  const totalDed   = 9.7 + 13.1 + dedSalary + dedKids + dedElderly + customDed;
+  const net        = Math.max(0, gross - totalDed);
+
+  let bracketRate = 0, bracketDiff = 0;
+  for (let b of brackets) {
+    if (net <= b.limit) { bracketRate = b.rate; bracketDiff = b.diff; break; }
+  }
+  const bracketTax = net * bracketRate;
+  const tax = Math.max(0, bracketTax - bracketDiff);
+
+  document.getElementById('salary-out').textContent    = salary.toFixed(0) + ' 萬';
+  document.getElementById('stocks-out').textContent    = stockAdj.toFixed(0) + ' 張';
+  document.getElementById('kids-out').textContent      = kids.toFixed(0) + ' 人';
+  document.getElementById('elderly-out').textContent   = elderly.toFixed(0) + ' 人';
+  document.getElementById('custom-ded-out').textContent = customDed.toFixed(0) + ' 萬';
+
+  document.getElementById('m-total').textContent = gross.toFixed(1) + ' 萬';
+  document.getElementById('m-net').textContent   = net.toFixed(1) + ' 萬';
+  document.getElementById('m-tax').textContent   = tax.toFixed(2) + ' 萬';
+
+  document.getElementById('s-salary').textContent      = '+ ' + salary.toFixed(1) + ' 萬';
+  document.getElementById('s-stock-label').textContent = '③ 股票收入（' + stockAdj.toFixed(0) + ' 張 × 26.9萬）';
+  document.getElementById('s-stocks').textContent      = '+ ' + stockAdjAmt.toFixed(1) + ' 萬';
+  document.getElementById('s-gross').textContent       = gross.toFixed(1) + ' 萬';
+
+  const salaryNote = salary < 21.8 ? '（薪資 ' + salary.toFixed(1) + ' 萬 < 上限）' : '（已達上限 21.8萬）';
+  document.getElementById('s-salary-ded').textContent   = '− ' + dedSalary.toFixed(2) + ' 萬 ' + salaryNote;
+  document.getElementById('s-kid-label').textContent    = '⑦ 幼兒學前（' + kids.toFixed(0) + ' 人 × 15萬）';
+  document.getElementById('s-kids-ded').textContent     = kids > 0 ? '− ' + dedKids.toFixed(2) + ' 萬' : '0 萬（無）';
+  document.getElementById('s-elderly-label').textContent = '⑧ 70歲以上撫養（' + elderly.toFixed(0) + ' 人 × 14.55萬）';
+  document.getElementById('s-elderly-ded').textContent  = elderly > 0 ? '− ' + dedElderly.toFixed(2) + ' 萬' : '0 萬（無）';
+  document.getElementById('s-custom-ded').textContent   = customDed > 0 ? '− ' + customDed.toFixed(1) + ' 萬' : '0 萬（無）';
+  document.getElementById('s-net').textContent          = net.toFixed(1) + ' 萬';
+
+  document.getElementById('r-bracket').textContent = net.toFixed(1) + ' 萬 × ' + (bracketRate*100).toFixed(0) + '% = ' + bracketTax.toFixed(2) + ' 萬';
+  document.getElementById('r-diff').textContent    = bracketDiff > 0 ? '− ' + bracketDiff.toFixed(2) + ' 萬' : '0 萬';
+  document.getElementById('r-tax').textContent     = tax.toFixed(2) + ' 萬';
+  document.getElementById('rate-badge').textContent = (bracketRate*100).toFixed(0) + '%';
+
+  const bracketRanges = ['0 ～ 59 萬','59 ～ 132 萬','132 ～ 222 萬','222 ～ 414 萬','414 ～ 623 萬','623 萬以上'];
+  const html = brackets.map((b, i) => {
+    const active = net > (i===0?0:brackets[i-1].limit) && net <= b.limit;
+    return `<div class="bracket-row ${active?'active':''}">
+      <span class="br-range">${bracketRanges[i]}</span>
+      <span class="br-rate">${(b.rate*100).toFixed(0)}%　差額 ${b.diff.toFixed(2)} 萬</span>
+    </div>`;
+  }).join('');
+  document.getElementById('bracket-detail').innerHTML = html;
+  document.getElementById('bracket-note').textContent =
+    '所得淨額 ' + net.toFixed(1) + ' 萬 → 適用 ' + (bracketRate*100).toFixed(0) + '% 稅率，累進差額 ' + bracketDiff.toFixed(2) + ' 萬';
+}
+
+['salary','stocks','kids','elderly','custom-ded'].forEach(id =>
+  document.getElementById(id).addEventListener('input', calc)
+);
+calc();
+</script>
+</body>
+</html>
